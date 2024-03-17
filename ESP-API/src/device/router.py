@@ -1,8 +1,9 @@
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import HTTPException
 from src.device.models import meta_data
 from src.database.engine import engine
-from sqlalchemy import text, Row
+from sqlalchemy import text
 from src.device.schemas import GetTemperature
 
 temperature_router = APIRouter()
@@ -24,6 +25,10 @@ def get_temperatures_by_location(location: str) -> GetTemperature:
         lst = list()
         for i in list(resource):
             lst.append(*i)
+        if len(lst) == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={
+                'ok': False,
+                'detail': 'Value by this location not exist'})
         return GetTemperature(values=lst, location=location)
 
 
