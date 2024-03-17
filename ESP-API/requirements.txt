@@ -1,7 +1,0 @@
-fastapi
-pydantic_settings
-uvicorn
-sqlalchemy
-alembic
-mysql-connector-python
-pymysql

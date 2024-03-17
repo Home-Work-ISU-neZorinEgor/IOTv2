@@ -8,10 +8,10 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
 
-    def DATABASE_URL_MYSQL(self):
+    def mysql_url(self):
         return f'mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
 
-    model_config = SettingsConfigDict(env_file='../.env')
+    model_config = SettingsConfigDict(env_file='.env')
 
 
 settings = Settings()

@@ -1,12 +1,14 @@
 from pydantic import BaseModel
-
-
-class PostTemperature(BaseModel):
-    value: float
-    location: str | None
+from typing import List
 
 
 class GetTemperature(BaseModel):
-    id: int
+    values: List[float]
+    location: str
+    
+    
+class PostTemperatureResponse(BaseModel):
     value: float
-    location: str | None
+    location: str
+
+

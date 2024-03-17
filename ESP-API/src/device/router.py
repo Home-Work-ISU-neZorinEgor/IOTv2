@@ -1,35 +1,38 @@
-from fastapi import APIRouter
-from sqlalchemy import text
-from src.database.database import engine
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
 from src.device.models import meta_data
+from src.database.engine import engine
+from sqlalchemy import text, Row
 from src.device.schemas import GetTemperature
-
 
 temperature_router = APIRouter()
 
 
-def create_tables():
+def create_temperature_table():
     meta_data.drop_all(engine)
     meta_data.create_all(engine)
 
 
-@temperature_router.post('/all')
-def insert_data(value, location):
-    with engine.connect() as conn:
-        stmt = text('''
-            INSERT INTO device (value, location) VALUES (:value, :location);
-        ''')
-        conn.execute(stmt, {'value': value, 'location': location})
-        conn.commit()
-
-
-@temperature_router.get('/all')
-def get_data(location):
+@temperature_router.get('/get_temperatures', response_model=GetTemperature)
+def get_temperatures_by_location(location: str) -> GetTemperature:
     with engine.connect() as conn:
         stmt = '''
-            SELECT * FROM `device` WHERE `location` = :location;
+            SELECT value FROM `temperature` WHERE `location` = :location;
         '''
         resource = conn.execute(text(stmt), {'location': location})
         conn.commit()
-        return [GetTemperature(id=i[0], value=i[1], location=i[2]) for i in list(resource)]
+        lst = list()
+        for i in list(resource):
+            lst.append(*i)
+        return GetTemperature(values=lst, location=location)
 
+
+@temperature_router.post('/add_temperatures')
+def save_temperatures(value: float, location: str) -> JSONResponse:
+    with engine.connect() as conn:
+        stmt = text('''
+            INSERT INTO `temperature` (value, location) VALUES (:value, :location);
+        ''')
+        conn.execute(stmt, {'value': value, 'location': location})
+        conn.commit()
+    return JSONResponse(status_code=status.HTTP_200_OK, content={'ok': True})
