@@ -91,65 +91,19 @@ void loop() {
 
   delay(1000);
 
-  // if (cm_1 < 10 && cm_2 < 10) { // Если оба расстояния меньше 10 см
-  //   Serial.println("Расстояние меньше 10 см для обоих датчиков. Движение вперед.");
-  //   forward(255); 
-  // } else if (cm_1 > cm_2) { // Если расстояние от первого датчика больше, чем от второго
-  //   Serial.println("Расстояние от первого датчика больше, чем от второго. Поворот налево.");
-  //   turn(true, 255); 
-  // } else if (cm_1 < cm_2) { // Если расстояние от второго датчика больше, чем от первого
-  //   Serial.println("Расстояние от второго датчика больше, чем от первого. Поворот направо.");
-  //   turn(false, 255); 
-  // }
+  if (cm_1 < 10 && cm_2 < 10) { // Если оба расстояния меньше 10 см
+    Serial.println("Расстояние меньше 10 см для обоих датчиков. Поворот направо.");
+    turn(false, 255); // Поворот направо
+  } else if (cm_1 < 10 && cm_2 >= 10) { // Если расстояние спереди меньше 10 см, а слева больше 10 см
+    Serial.println("Расстояние спереди меньше 10 см и слева больше 10 см. Поворот налево и движение вперед.");
+    turn(true, 255); // Поворот налево
+    delay(500); // Небольшая задержка для поворота
+  } else if (cm_2 < 10 && cm_1 >= 10) { // Если расстояние слева меньше 10 см, а спереди больше 10 см
+    Serial.println("Расстояние слева меньше 10 см и спереди больше 10 см. Движение вперед.");
+    forward(255); // Движение вперед
+  } else if (cm_2 > 10 && cm_1 > 10) { // Если оба расстояние больше 10
+    Serial.println("Оба расстояния больше 10. Поворот направа.");
+    turn(true, 255); // Поворот налево
+  }
 }
 
-
-// void loop() {
-//   digitalWrite(PIN_TRIG, LOW);
-//   delayMicroseconds(5);
-//   digitalWrite(PIN_TRIG, HIGH);
-
-//   delayMicroseconds(1000);
-//   digitalWrite(PIN_TRIG, LOW);
-
-//   // Получаем время задержки для акустического сигнала на датчике (в микросекундах)
-//   duration = pulseIn(PIN_ECHO, HIGH);
-
-//   // Преобразуем время в расстояние (в сантиметрах)
-//   cm = (duration / 2) / 29.1;
-
-//   // Выводим измеренное расстояние в консоль
-//   Serial.print("Расстояние до объекта: ");
-//   Serial.print(cm);
-//   Serial.println(" см.");
-
-//   if(Serial.available()){
-//     char input = Serial.read();
-//     switch(input){
-//       case 'f':
-//         Serial.println("Moving forward...");
-//         forward(255);
-//         break;
-//       case 's':
-//         Serial.println("Stopping...");
-//         stop();
-//         break;
-//       case 'b':
-//         Serial.println("Moving backward...");
-//         back(255);
-//         break;
-//       case 'a':
-//         Serial.println("Turning around...");
-//         turn(true, 255); 
-//         break;
-//       case 'l':
-//         Serial.println("Turning left...");
-//         turn(true, 255); 
-//         break;
-//       case 'r':
-//         Serial.println("Turning right...");
-//         turn(false, 255); 
-//         break;
-//     }
-//   }
-// }
