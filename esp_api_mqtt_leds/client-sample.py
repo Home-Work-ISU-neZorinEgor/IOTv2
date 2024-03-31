@@ -1,3 +1,5 @@
+import time
+
 import paho.mqtt.client as mqtt
 
 broker_address = "broker.emqx.io"
@@ -23,14 +25,13 @@ client.on_connect = on_connect
 client.connect(broker_address, broker_port)
 client.loop_start()
 
+time.sleep(1)   # что бы сначала увидеть статус подключения
 while True:
     send_empty_message()
-    input("Нажмите Enter для продолжения...")
     input_color = input("Введите цвет в формате RGB (например, 255000000 для красного): ")
     input_num_leds = int(input("Введите количество светодиодов: "))
     set_led_color(input_color, input_num_leds)
-    print("Сообщение с цветом {} для {} светодиодов отправлено на тему {}".format(input_color, input_num_leds, topic))
-
+    print(f"Сообщение с цветом {input_color} для {input_color} светодиодов отправлено на тему {topic}")
 
 client.loop_stop()
 client.disconnect()
