@@ -13,4 +13,4 @@ const int mqtt_port = 1883;
 
 const int led = 2;
 
-const int NUM_LEDS = 170;
+const int NUM_LEDS = 14;
