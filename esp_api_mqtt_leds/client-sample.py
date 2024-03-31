@@ -11,7 +11,7 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT broker with result code " + str(rc))
 
 
-def send_empty_message():   # лента кривая, ставит цвета только при повторном нажатии
+def send_empty_message():   # лента кривая, ставит цвета только при повторной отправке сообщения
     client.publish(topic, payload="")
 
 
@@ -32,6 +32,7 @@ while True:
     input_num_leds = int(input("Введите количество светодиодов: "))
     set_led_color(input_color, input_num_leds)
     print(f"Сообщение с цветом {input_color} для {input_color} светодиодов отправлено на тему {topic}")
+    print("----------------")
 
 client.loop_stop()
 client.disconnect()
