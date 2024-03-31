@@ -31,8 +31,8 @@ while True:
     input_color = input("Введите цвет в формате RGB (например, 255000000 для красного): ")
     input_num_leds = int(input("Введите количество светодиодов: "))
     set_led_color(input_color, input_num_leds)
-    print(f"Сообщение с цветом {input_color} для {input_color} светодиодов отправлено на тему {topic}")
-    print("----------------")
+    print(f"Сообщение с цветом {input_color} для {input_num_leds} светодиодов отправлено на тему {topic}")
+    print("---------------- SET LED SERIES ----------------")
 
 client.loop_stop()
 client.disconnect()
