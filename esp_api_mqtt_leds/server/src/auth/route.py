@@ -16,14 +16,14 @@ def check_auth(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
     if credentials.username not in fake_db:
         raise not_auth_exception
     if not secrets.compare_digest(fake_db[credentials.username].encode('utf-8'),
-                              credentials.password.encode('utf-8')):
+                                  credentials.password.encode('utf-8')):
         raise not_auth_exception
     return credentials.username
 
 
 @auth_router.get('/whoami')
-def check_credentials(user: str = Depends(check_auth)):
-    return f'Hi, {user}'
+def check_credentials(credentials: str = Depends(check_auth)):
+    return f'Hi, {credentials}'
 
 
 
