@@ -3,8 +3,8 @@
 #define DIR_LEFT 7 
 #define SPEED_LEFT 6
 
-#define PIN_TRIG_1 8
-#define PIN_ECHO_1 9
+#define PIN_TRIG_1 9
+#define PIN_ECHO_1 10
 
 #define PIN_TRIG_2 12
 #define PIN_ECHO_2 11
@@ -13,7 +13,7 @@ long duration_1, cm_1;
 long duration_2, cm_2;
 
 unsigned long lastTurnTime = 0;
-int turnDuration = 2000;
+int turnDuration = 1380;
 
 void setup() {
   for(int i = 4; i <= 7; i++){
@@ -34,7 +34,7 @@ void move(bool lforward, bool rforward, int lspeed, int rspeed){
 }
 
 void forward(int speed){
-  move(false, true, speed, speed);
+  move(false, true, speed * 1.02, speed);
 }
 
 void back(int speed){
@@ -52,6 +52,7 @@ void turn(bool left, int speed) {
     move(true, true, speed, speed);
     analogWrite(SPEED_RIGHT, speed);
   } else {
+    delay(200);
     move(false, false, speed, speed);
     analogWrite(SPEED_LEFT, speed);
   }
@@ -62,6 +63,28 @@ void turn(bool left, int speed) {
   }
   
   stop(); 
+}
+
+void algo(int dist){
+   if (cm_1 < dist && cm_2 < dist) { // Если оба расстояния меньше 10 см
+    Serial.println("Расстояние меньше 20 см для обоих датчиков. Поворот направо.");
+    turn(false, 255); // Поворот направо
+
+  } else if (cm_1 < dist && cm_2 >= dist) { // Если расстояние спереди меньше 10 см, а слева больше 10 см
+    Serial.println("Расстояние спереди меньше 20 см и слева больше 20 см. Поворот налево и движение вперед.");
+    turn(true, 255); // Поворот налево
+
+  } else if (cm_2 < dist && cm_1 >= dist) { // Если расстояние слева меньше 10 см, а спереди больше 10 см
+    Serial.println("Расстояние слева меньше 20 см и спереди больше 20 см. Движение вперед.");
+    forward(100); // Движение вперед
+
+  } else if (cm_2 > dist && cm_1 > dist) { // Если оба расстояние больше 10
+    Serial.println("Оба расстояния больше 20. Поворот налево.");
+    delay(750);
+    turn(true, 255); // Поворот налево
+    forward(100);
+    delay(3000);
+  }
 }
 
 void loop() {
@@ -89,21 +112,8 @@ void loop() {
   Serial.print(cm_2);
   Serial.println(" см.");
 
-  delay(1000);
+  algo(18);
 
-  if (cm_1 < 10 && cm_2 < 10) { // Если оба расстояния меньше 10 см
-    Serial.println("Расстояние меньше 10 см для обоих датчиков. Поворот направо.");
-    turn(false, 255); // Поворот направо
-  } else if (cm_1 < 10 && cm_2 >= 10) { // Если расстояние спереди меньше 10 см, а слева больше 10 см
-    Serial.println("Расстояние спереди меньше 10 см и слева больше 10 см. Поворот налево и движение вперед.");
-    turn(true, 255); // Поворот налево
-    delay(500); // Небольшая задержка для поворота
-  } else if (cm_2 < 10 && cm_1 >= 10) { // Если расстояние слева меньше 10 см, а спереди больше 10 см
-    Serial.println("Расстояние слева меньше 10 см и спереди больше 10 см. Движение вперед.");
-    forward(255); // Движение вперед
-  } else if (cm_2 > 10 && cm_1 > 10) { // Если оба расстояние больше 10
-    Serial.println("Оба расстояния больше 10. Поворот направа.");
-    turn(true, 255); // Поворот налево
-  }
+ 
 }
 
