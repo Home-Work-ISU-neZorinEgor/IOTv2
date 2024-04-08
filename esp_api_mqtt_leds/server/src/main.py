@@ -4,8 +4,8 @@ import uvicorn
 from src.database import SqliteDB
 from src.auth.model import create_user_table
 from src.auth.router import auth_router
-from src.leds_color.model import create_color_leds_table
-from src.leds_color.router import colors_router
+from src.pixels_colors.model import create_color_leds_table
+from src.pixels_colors.router import colors_router
 
 
 def create_tables():

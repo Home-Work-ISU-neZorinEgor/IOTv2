@@ -18,9 +18,7 @@ def check_auth(credentials: Annotated[HTTPBasicCredentials, Depends(security)]) 
         user = engine.execute_query(f"""
             SELECT * FROM Users WHERE username='{credentials.username}' AND password='{credentials.password}'
                     """)
-        print(user)
         if user:
-            print(FullUserInfo(id=user[0][0], username=user[0][1], password=user[0][2]))
             return FullUserInfo(id=user[0][0], username=user[0][1], password=user[0][2])
         raise unauthorized_exception
     finally:
