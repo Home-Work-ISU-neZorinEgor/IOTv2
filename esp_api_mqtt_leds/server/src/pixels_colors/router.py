@@ -1,6 +1,4 @@
 import random
-from typing import List, Any
-
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -12,7 +10,7 @@ from src.pixels_colors.scheme import PixelsColors
 colors_router = APIRouter(prefix='/colors', tags=['PixelsColors'])
 
 
-@colors_router.post('/create')
+@colors_router.post('/save')
 def save_colors(pixel: PixelsColors, auth: FullUserInfo = Depends(check_auth)):
     """ The handler stores the color combination for a specific user """
     engine = SqliteDB()
@@ -24,7 +22,7 @@ def save_colors(pixel: PixelsColors, auth: FullUserInfo = Depends(check_auth)):
     return JSONResponse({'ok': True, 'message': "Save colors successful"})
 
 
-@colors_router.get('/my-colors')
+@colors_router.get('/get-my-colors')
 def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)) -> str | list[str]:
     """ The handler return combinations of colors for specific user or reports that there are none."""
     engine = SqliteDB()
@@ -42,7 +40,7 @@ def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)) -> str | list
 
 
 @colors_router.get('/generate')
-def generate_color_combination(pixel_count: int) -> str:
+def generate_color_combination(pixel_count: int, auth: FullUserInfo = Depends(check_auth)) -> str:
     """ Algorithm for creating a smoothly transitioning shade """
     colors = list()
     pixel_color = random.randint(1, 3)
