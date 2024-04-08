@@ -1,4 +1,5 @@
 import random
+from typing import List, Any
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -24,7 +25,7 @@ def save_colors(pixel: PixelsColors, auth: FullUserInfo = Depends(check_auth)):
 
 
 @colors_router.get('/my-colors')
-def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)):
+def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)) -> str | list[str]:
     """ The handler return combinations of colors for specific user or reports that there are none."""
     engine = SqliteDB()
     unbox_list = list()
@@ -41,25 +42,18 @@ def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)):
 
 
 @colors_router.get('/generate')
-def generate_color_combination():
-    pixel_count = random.randint(1, 10)
-    combo = ""
-    color = random.randint(1, 3)
-    value = random.randint(0, 255)
-
+def generate_color_combination(pixel_count: int) -> str:
+    """ Algorithm for creating a smoothly transitioning shade """
+    colors = list()
+    pixel_color = random.randint(1, 3)
+    value = random.randint(0, 120)
     if len(str(value)) == 2: value = "0" + str(value)
     if len(str(value)) == 1: value = "00" + str(value)
-
-    series = 255 - int(value) / pixel_count
+    series = (255 - int(value)) // pixel_count
+    value = int(value)
     for i in range(pixel_count):
-        pass   # TODO: finish algo
-
-    match color:
-        case 1:
-            combo = str(value) + "000000"  # red
-        case 2:
-            combo = "000" + str(value) + "000"  # green
-        case 3:
-            combo = "000000" + str(value)  # blue
-
-    return combo
+        value += series
+        if pixel_color == 1: colors.append(str(value) + "000000")   # red
+        if pixel_color == 2: colors.append("000" + str(value) + "000")   # green
+        if pixel_color == 3: colors.append("000000" + str(value))    # blue
+    return ''.join(colors)
