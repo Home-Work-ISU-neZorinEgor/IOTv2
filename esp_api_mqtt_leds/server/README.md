@@ -3,5 +3,5 @@
     ```
 
 2. ```bash
-    sudo docker run -d --rm -p 8888:5000 app:1.0 
+    docker run -d --rm -p 8888:5000 app:1.0 
     ```
