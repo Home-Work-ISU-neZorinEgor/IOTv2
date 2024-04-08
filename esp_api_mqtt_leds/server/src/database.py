@@ -5,6 +5,7 @@ class SqliteDB:
     def __init__(self):
         self.__db_name = '../local.db'
         self.__connection = sqlite3.connect(self.__db_name)
+
     # def __enter__(self):
     #     return self.__connection
     #
