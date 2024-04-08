@@ -4,8 +4,8 @@ import uvicorn
 from src.database import SqliteDB
 from src.auth.model import create_user_table
 from src.auth.router import auth_router
-from src.pixels_colors.model import create_color_leds_table
-from src.pixels_colors.router import colors_router
+from src.pixels.model import create_color_leds_table
+from src.pixels.router import pixel_router
 
 
 def create_tables():
@@ -18,6 +18,6 @@ create_tables()
 app = FastAPI(title='leds')
 
 app.include_router(auth_router)
-app.include_router(colors_router)
+app.include_router(pixel_router)
 
 uvicorn.run(app, host='127.0.0.1', port=5000)
