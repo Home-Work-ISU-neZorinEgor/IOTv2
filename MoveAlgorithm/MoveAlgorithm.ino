@@ -112,8 +112,5 @@ void loop() {
   Serial.print(cm_2);
   Serial.println(" см.");
 
-  algo(18);
-
- 
+  algo(18); 
 }
-
