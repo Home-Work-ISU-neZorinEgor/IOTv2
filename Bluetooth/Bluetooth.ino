@@ -21,92 +21,161 @@ void setup() {
   mySerial.println("Hello, Egor!");
 }
 
-void move(bool l, bool r, int lspeed, int rspeed){
-  digitalWrite(DIR_RIGHT, r);
-  digitalWrite(DIR_LEFT, l);
+void move(bool lforward, bool rforward, int lspeed, int rspeed){
+  digitalWrite(DIR_RIGHT, rforward);
+  digitalWrite(DIR_LEFT, lforward);
   analogWrite(SPEED_RIGHT, rspeed);
   analogWrite(SPEED_LEFT, lspeed);
 }
 
-void forward(int s, bool l, bool r){
-  move(l, r, s, s);
+void forward(int l_speed, int r_speed, bool left, bool right){
+  move(left, right, l_speed, r_speed);
 }
 
-void back(int s){
-  move(false, false, s, s);
+void back(int speed){
+  move(false, false, speed, speed);
 }
 
 void stop(){
   move(true, false, 0, 0);
 }
 
-void turn(bool l, int s) {
-  int q = turnDuration / 4;
-  if (l) {
-    move(false, true, s, s);
-    analogWrite(SPEED_RIGHT, s);
+void turn(bool left, int speed) {
+  int quarterTurnDuration = turnDuration / 4;
+  if (left) {
+    move(false, true, speed, speed);
+    analogWrite(SPEED_RIGHT, speed);
   } else {
-    move(true, false, s, s);
-    analogWrite(SPEED_LEFT, s);
+    move(true, false, speed, speed);
+    analogWrite(SPEED_LEFT, speed);
   }
-  delay(q);
-  while (millis() - lastTurnTime < 3 * q) {}
+  delay(quarterTurnDuration);
+  while (millis() - lastTurnTime < 3 * quarterTurnDuration) {}
   stop(); 
 }
 
 void loop() {
-  static int p = 0; 
-  static String bs = ""; 
-  static bool bm = false; 
-  bool s1l = false, s1r = false;
-  bool s2l = false, s2r = true;
-  bool s3l = true, s3r = false;
-  bool s4l = true, s4r = true;
+  float coef = 1.1;
+  static int leftSpeed = 100; 
+  static int rightSpeed = 100; 
 
-  bool f1l, f1r;
-  bool f2l, f2r;
-  bool f3l, f3r;
-  bool f4l, f4r;
-  bool set1 = false, set2 = false;
+  static int pCount = 0; 
+  static String bindSequence = ""; 
+  static bool bindMode = false; 
+
+  static bool changeSpeed = false; ////////////////////////////////////////////////////////////////
+  static String readMessage = ""; 
+  static int mCount = 0; 
+
+  bool state_1l = false, state_1r = false;
+  bool state_2l = false, state_2r = true;
+  bool state_3l = true, state_3r = false;
+  bool state_4l = true, state_4r = true;
+
+  bool f_1l, f_1r;
+  bool f_2l, f_2r;
+  bool f_3l, f_3r;
+  bool f_4l, f_4r;
+  bool set_1 = false, set_2 = false;
 
   if (mySerial.available()) {
-    char rc = mySerial.read(); 
-    Serial.write(rc); 
+    char receivedChar = mySerial.read(); 
+    Serial.write(receivedChar); 
 
-    if (bm) {
-      bs += rc;
-      p++;
-      if (p >= 5) {
-        bs = bs.substring(bs.length() - 4);
-        switch (bs[0]) {
-          case 'T': set1 = s1l; set2 = s1r; break;
-          case 'S': set1 = s2l; set2 = s2r; break;
-          case 'X': set1 = s3l; set2 = s3r; break;
-          case 'C': set1 = s4l; set2 = s4r; break;
+    if (changeSpeed) {
+      readMessage += receivedChar;
+      mCount++;
+      if (mCount >= 5) {
+          readMessage = readMessage.substring(readMessage.length() - 4);
+          // Вывод первых двух символов
+          String firstTwo = readMessage.substring(0, 2);
+          
+          Serial.println();
+          Serial.println();
+          Serial.println(readMessage);
+
+          // Serial.print("Первые два символа: ");
+          // Serial.println(firstTwo);
+
+          String lastTwo = readMessage.substring(readMessage.length() - 2);
+          
+
+          if (firstTwo == "B0") {
+              String test_state = lastTwo;
+              if (test_state == "R0"){
+                  rightSpeed =  rightSpeed / coef;
+              }
+
+              if (test_state == "L0"){
+                  leftSpeed = leftSpeed / coef;
+              }
+          }
+
+          if (firstTwo == "F0") {
+              String test_state = lastTwo;
+              if (test_state == "R0"){
+                  rightSpeed = rightSpeed* coef;
+              }
+
+              if (test_state == "L0"){
+                  leftSpeed =  leftSpeed * coef;
+              }
+          }
+          
+          Serial.println();
+          Serial.println("New speed:");
+          Serial.println(leftSpeed);
+          Serial.println(rightSpeed);
+          // Сброс переменных и строк
+          changeSpeed = false;
+          readMessage = "";
+          mCount = 0;
+      }
+  }
+
+    if (bindMode) {
+      bindSequence += receivedChar;
+      pCount++;
+      if (pCount >= 5) {
+        bindSequence = bindSequence.substring(bindSequence.length() - 4);
+        switch (bindSequence[0]) {
+          case 'T': set_1 = state_1l; set_2 = state_1r; break;
+          case 'S': set_1 = state_2l; set_2 = state_2r; break;
+          case 'X': set_1 = state_3l; set_2 = state_3r; break;
+          case 'C': set_1 = state_4l; set_2 = state_4r; break;
         }
-        if ((bs.substring(bs.length() - 2)) == "F0") { f1l = set1; f1r = set2; }
-        if ((bs.substring(bs.length() - 2)) == "R0") { f2l = set1; f2r = set2; }
-        if ((bs.substring(bs.length() - 2)) == "L0") { f3l = set1; f3r = set2; }
-        if ((bs.substring(bs.length() - 2)) == "B0") { f4l = set1; f4r = set2; }
-        bm = false; p = 0; bs = "";
+        if ((bindSequence.substring(bindSequence.length() - 2)) == "F0") { f_1l = set_1; f_1r = set_2; }
+        if ((bindSequence.substring(bindSequence.length() - 2)) == "R0") { f_2l = set_1; f_2r = set_2; }
+        if ((bindSequence.substring(bindSequence.length() - 2)) == "L0") { f_3l = set_1; f_3r = set_2; }
+        if ((bindSequence.substring(bindSequence.length() - 2)) == "B0") { f_4l = set_1; f_4r = set_2; }
+        bindMode = false; pCount = 0; bindSequence = "";
       }
     }
-    if (rc == 'F') forward(255, f1l, f1r);
-    else if (rc == 'R') forward(255, f2l, f2r);
-    else if (rc == 'L') forward(255, f3l, f3r);
-    else if (rc == 'B') forward(255, f4l, f4r);
-    if (rc == 'T') forward(255, s1l, s1r);
-    else if (rc == 'S') forward(255, s2l, s2r);
-    else if (rc == 'X') forward(255, s3l, s3r);
-    else if (rc == 'C') forward(255, s4l, s4r);
-    else if (rc == '0') stop();
-    else if (rc == 'P') {
-      bm = true; p = 0; bs = "";
+
+    if (receivedChar == 'F') forward(leftSpeed, rightSpeed, f_1l, f_1r);
+    else if (receivedChar == 'R') forward(leftSpeed, rightSpeed, f_2l, f_2r);
+    else if (receivedChar == 'L') forward(leftSpeed, rightSpeed, f_3l, f_3r);
+    else if (receivedChar == 'B') forward(leftSpeed, rightSpeed, f_4l, f_4r);
+
+    if (receivedChar == 'T') forward(leftSpeed, rightSpeed, state_1l, state_1r);
+    else if (receivedChar == 'S') forward(leftSpeed, rightSpeed, state_2l, state_2r);
+    else if (receivedChar == 'X') forward(leftSpeed, rightSpeed, state_3l, state_3r);
+    else if (receivedChar == 'C') forward(leftSpeed, rightSpeed, state_4l, state_4r);
+    else if (receivedChar == '0') stop();
+
+    else if (receivedChar == 'P') {
+      bindMode = true; pCount = 0; bindSequence = "";
       Serial.println("Start bind mode");
+    }
+
+    else if (receivedChar == 'A') {
+      changeSpeed = true;
+      Serial.println("CHANGE SPEED");
     }
   }
   if (Serial.available()) mySerial.write(Serial.read());
 }
+
 
 
 
