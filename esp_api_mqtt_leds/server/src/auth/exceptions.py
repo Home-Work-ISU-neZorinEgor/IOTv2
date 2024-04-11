@@ -1,7 +1,13 @@
-from fastapi import status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
+from fastapi import HTTPException, status
 
-not_auth_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                   detail={'message': 'Invalid username or password', 'recommend': 'register on ...'})
+unauthorized_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                       detail={
+                                           "ok": False,
+                                           "message": "Invalid username or password"
+                                       })
 
+exists_suer = HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail={
+                    "ok": False,
+                    "message": "User with name already exist."
+                })
