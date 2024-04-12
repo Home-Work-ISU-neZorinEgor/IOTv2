@@ -22,7 +22,7 @@ def save_colors(pixel: PixelsColors, auth: FullUserInfo = Depends(check_auth)):
 
 @pixel_router.get('/get-my-colors')
 def get_user_colors_list(auth: FullUserInfo = Depends(check_auth)) -> str | list[str]:
-    """ The handler return combinations of colors for specific user or reports that there are none."""
+    """ Return combinations of colors for specific user or reports that there none."""
     engine = SqliteDB()
     unbox_list = list()
     stmt = f"SELECT color_series FROM Colors WHERE user_id='{auth.id}'"
